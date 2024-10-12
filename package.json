@@ -1,0 +1,16 @@
+{
+  "name": "manoj_mb_th",
+  "version": "1.0.0",
+  "description": "metabase take home assessment",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "Manoj Nandakumar",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/preset-env": "^7.25.8",
+    "jest": "^29.7.0"
+  }
+}
