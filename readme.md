@@ -97,6 +97,47 @@ Here’s the updated version of the **Operators** section based on your latest w
 
 2. **Add to Dialects**:  
    - Register the new dialect by adding it to the `dialects` object, making it available for query generation.
+   
+## Optimization Techniques in SQL Query Generator
+#### 1. Pruning Nested Conditions (`AND`, `OR`, `NOT`)
+Pruning nested conditions where operators like `AND`, `OR`, and `NOT` are unnecessarily nested within themselves.
+
+**Example:**
+Before optimization:
+`AND (AND x, y), z`
+After optimization:
+`AND x, y, z`
+
+The same principle applies to `OR` and `NOT`:
+- Nested `OR` operators like `OR (OR x, y), z` are flattened to `OR x, y, z`.
+- Nested `NOT` operators like `NOT (NOT x)` are simplified to just `x`.
+
+#### 2. Computing Constant Values (e.g., `1 = 1`)
+Computing constant values within the query, where conditions that always evaluate to true or false are resolved.
+
+**Example:**
+Before optimization:
+`1 = 1 AND age > 30`
+After optimization:
+`age > 30`
+
+#### 3. Pruning `AND` and `OR` Clauses with `TRUE` or `FALSE`
+
+When the query contains an `AND` or `OR` clause with a `TRUE` or `FALSE` value, the generator can simplify these clauses based on logical principles:
+- For an `AND` clause, if any condition is `FALSE`, the whole clause becomes `FALSE`.
+- For an `OR` clause, if any condition is `TRUE`, the whole clause becomes `TRUE`.
+
+**Example 1: `AND` Clause with `FALSE`**
+Before optimization:
+`age > 30 AND 1 = 0`
+After optimization:
+`1 = 0 or FALSE`
+
+**Example 2: `OR` Clause with `TRUE`**
+Before optimization:
+`age < 18 OR 1 = 1`
+After optimization:
+`""` - it will have true and true in this case is no where clause.
 
 ### Note
 1. **Input Validation Assumption**: 
