@@ -1,85 +1,75 @@
-/**
- * Base class for dialect-related functions.
- */
 class Dialect {
-    /**
-     * Helper to print field names.
-     */
+    // Formats field names with double quotes.
     printField(field) {
-        return `\"${field}\"`;
+        return `\"${field}\"`; // Field names are quoted with double quotes.
     }
 
-    /**
-     * Helper to print string literals.
-     */
+    // Formats string literals with single quotes.
     printString(str) {
-        return `'${str}'`;
+        return `'${str}'`; // String literals are wrapped in single quotes.
     }
 
-    /**
-     * Helper to print bool literals.
-     */
+    // Formats boolean literals.
     printBoolean(value) {
-        if (value) return "TRUE";
-        return "FALSE";
+        return value ? "TRUE" : "FALSE"; // Booleans are printed as TRUE or FALSE.
     }
 
-    /**
-     * Get the limit clause.
-     * Returns an empty string if `limitRows` is undefined.
-     */
+    // Returns the LIMIT clause for the query. If no limit is provided, it returns an empty string.
     getLimitClause(limitRows) {
-        if (limitRows === undefined) return "";
-        return ` LIMIT ${limitRows}`;
+        return limitRows === undefined ? "" : ` LIMIT ${limitRows}`; // Add LIMIT clause if present.
     }
 
-    /**
-     * Build the final query.
-     */
+    // Builds the final SQL query.
     buildQuery(baseQueryType, tableSpecifier, whereClause, limitRows) {
+        // Constructs the query using base type, table, where clause, and limit.
         return `${baseQueryType} * FROM ${tableSpecifier}${whereClause}${this.getLimitClause(limitRows)};`;
-    }
-};
-
-class MySQLDialect extends Dialect {
-    printField(field) {
-        // MySQL fields are wrapped with backticks.
-        return `\`${field}\``;
     }
 }
 
+// MySQL-specific dialect.
+class MySQLDialect extends Dialect {
+    // MySQL fields are wrapped in backticks.
+    printField(field) {
+        return `\`${field}\``; // MySQL uses backticks for field names.
+    }
+}
+
+// SQL Server-specific dialect.
 class SQLServerDialect extends Dialect {
+    // SQL Server uses the "TOP" keyword for limiting rows.
     buildQuery(baseQueryType, tableSpecifier, whereClause, limitRows) {
-        // SQL server's limit clause is "SELECT TOP x * FROM ..."
+        // Constructs SQL Server query with TOP clause instead of LIMIT.
         return `${baseQueryType}${this.getLimitClause(limitRows)} * FROM ${tableSpecifier}${whereClause};`;
     }
 
+    // Returns the TOP clause for SQL Server.
     getLimitClause(limitRows) {
-        if (limitRows === undefined) return "";
-        return ` TOP ${limitRows}`;
+        return limitRows === undefined ? "" : ` TOP ${limitRows}`; // Use TOP for SQL Server limit.
     }
 
+    // SQL Server uses 1=1 for TRUE and 0=1 for FALSE.
     printBoolean(value) {
-        // SQL server does not have a boolean type
-        if (value) return "1=1";
-        return "0=1";
+        return value ? "1=1" : "0=1"; // Booleans are represented as 1=1 (TRUE) or 0=1 (FALSE).
     }
 }
 
+// Postgres dialect inherits the default behavior from Dialect.
 class PostgresDialect extends Dialect { }
 
+// Map of supported SQL dialects.
 const dialects = {
     "mysql": MySQLDialect,
     "sqlserver": SQLServerDialect,
     "postgres": PostgresDialect
-};
+}
 
+// Retrieves the dialect constructor based on the name. Throws an error if the dialect is not supported.
 const getDialect = name => {
     const constructor = dialects[name];
     if (constructor === undefined) {
-        throw new Error(`Unsupported dialect ${name}.`);
+        throw new Error(`Unsupported dialect ${name}.`); // Error if the dialect is not supported.
     }
-    return new constructor();
+    return new constructor(); // Return the appropriate dialect instance.
 }
 
 export default getDialect;
